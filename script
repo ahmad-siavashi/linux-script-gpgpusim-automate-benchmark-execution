@@ -1,0 +1,28 @@
+#!/bin/bash
+# In his exalted name
+# Description: Automating CUDA benchmanrks execution in GPGPU-Simulator
+# Author: Ahmad Siavashi
+# Date: April, 6, 2017
+if [ $# -ne 2 ] 
+    then
+	echo "Usage: $0 <GPU architecture> <executables path>"
+	exit 1
+fi
+GPU_ARCH=$1
+mkdir $HOME/$GPU_ARCH
+echo "Output Directory: $HOME/$GPU_ARCH"
+cd $2
+i=0
+N=$(ls | wc -l)
+for file in $(ls | sort -r); 
+    do
+	let i=$i+1
+	filename=$(basename $file)
+	filepath=$(echo $filename | xargs readlink -f)
+	RUNDIR=$HOME/$GPU_ARCH/$filename
+	cp -a $HOME/gpgpu-sim_distribution/configs/$GPU_ARCH/ $RUNDIR
+	echo "[$i/$N] Starting $filepath"
+	cd $RUNDIR; $filepath > stdout.txt 2> stderr.txt; cd -
+	echo "[$i/$N] Finished $filepath"	
+done
+
